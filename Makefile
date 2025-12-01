@@ -1,6 +1,6 @@
 .PHONY: all build install clean
 
-all: build
+all: build install
 
 build:
 	@echo "Building aoc..."
