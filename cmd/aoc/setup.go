@@ -20,7 +20,7 @@ var SetupCmd = &cobra.Command{
 	Long:  `Setup creates a template file for a new day's implementation`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// Validate day inputs (not bothering with year)
+		// Validate day & year inputs 
 		if setupDay < 1 || setupDay > 25 {
 			fmt.Fprintf(os.Stderr, "Day must be between 1 and 25, got %d\n", setupDay)
 			os.Exit(1)

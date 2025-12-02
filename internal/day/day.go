@@ -1,6 +1,6 @@
 package day
 
-var Days DayMap
+var YearDays YearDayMap
 
 type Day interface {
 	SolvePart1(input []byte) (string, error)
@@ -8,15 +8,18 @@ type Day interface {
 }
 
 func init() {
-	Days = make(DayMap)
+	YearDays = make(YearDayMap)
 }
 
-type DayMap map[int]Day
+type YearDayMap map[int]map[int]Day // year -> day -> Day implementation
 
-func (d DayMap) RegisterDay(dayNum int, day Day) {
-	d[dayNum] = day
+func (d YearDayMap) RegisterDay(year int, dayNum int, day Day) {
+	if d[year] == nil {
+		d[year] = make(map[int]Day)
+	}
+	d[year][dayNum] = day
 }
 
-func (d DayMap) GetDay(day int) Day {
-	return d[day]
+func (d YearDayMap) GetDay(year int, day int) Day {
+	return d[year][day]
 }

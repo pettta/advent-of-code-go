@@ -1,13 +1,6 @@
-# Advent of Code 2025
+# Advent of Code Golang Tool
 
 A Go-based CLI tool for solving Advent of Code 2025 problems. This tool provides a structured framework for implementing and running solutions for each day's challenges.
-
-## Features
-
-- 🚀 Quick setup for new days with template generation
-- ⚡ Fast execution with timing information
-- 📦 Organized structure for all 25 days
-- 🛠️ Easy-to-use CLI interface
 
 ## Installation
 
@@ -34,8 +27,8 @@ This will build and install the `aoc` command to `/usr/local/bin`, making it ava
 Create a template file for a new day's implementation:
 
 ```bash
-aoc setup -d 1 -y 2025   # Creates internal/year2025/day/day01.go
-aoc setup -d 25 -y 2025 # Creates internal/year2025/day/day25.go
+aoc setup -d 1 -y 2025   # Creates internal/2025/day/day01.go
+aoc setup -d 25 -y 2025 # Creates internal/2025/day/day25.go
 ```
 
 The template includes:
@@ -48,13 +41,14 @@ The template includes:
 Execute a day's solution:
 
 ```bash
-aoc day -d 1 -p 1 --file input.txt
-aoc day -d 1 -p 2 --file input.txt
+aoc day -y 2025 -d 1 -p 1 --file input.txt
+aoc day -y 2025 -d 1 -p 2 --file input.txt
 ```
 
 **Flags:**
 - `-d, --day`: Day number (1-25, required)
 - `-p, --part`: Part number (1 or 2, required)
+- `-y, --year` : Year number (required to know what folder we are working in)
 - `--file`: Path to input file (required)
 
 **Example:**
@@ -77,7 +71,7 @@ aoc day -d 1 -p 1 --file inputs/day01.txt
 │   │   └── day.go       # Day interface and registry
 │   ├── utils/
 │   │   └── file.go       # File utility functions
-│   └── year2025/
+│   └── 2025/
 │       ├── day/
 │       │   └── day01.go  # Example generated implementation for the year
 │       └── utils/        # Year-specific helpers (optional)
@@ -92,7 +86,7 @@ aoc day -d 1 -p 1 --file inputs/day01.txt
    aoc setup -d 1
    ```
 
-2. **Edit the generated file** at `internal/day/day01.go`:
+2. **Edit the generated file** at `internal/2025/day/day01.go`:
    ```go
    func (d *Day1) SolvePart1(input []byte) (string, error) {
        // Your solution here
@@ -102,7 +96,7 @@ aoc day -d 1 -p 1 --file inputs/day01.txt
 
 3. **Run your solution:**
    ```bash
-   aoc day -d 1 -p 1 --file input.txt
+   aoc day -y 2025 -d 1 -p 1 --file inputs/2025-d1-input.txt
    ```
 
 ## Day Interface
