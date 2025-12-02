@@ -34,8 +34,8 @@ This will build and install the `aoc` command to `/usr/local/bin`, making it ava
 Create a template file for a new day's implementation:
 
 ```bash
-aoc setup -d 1 -y 2025   # Creates 2025/internal/day/day01.go
-aoc setup -d 25 -y 2025 # Creates 2025/internal/day/day25.go
+aoc setup -d 1 -y 2025   # Creates internal/year2025/day/day01.go
+aoc setup -d 25 -y 2025 # Creates internal/year2025/day/day25.go
 ```
 
 The template includes:
@@ -74,10 +74,13 @@ aoc day -d 1 -p 1 --file inputs/day01.txt
 │       └── setup.go     # Setup command implementation
 ├── internal/
 │   ├── day/
-│   │   ├── day.go       # Day interface and registry
-│   │   └── dayXX.go     # Day implementations (generated)
-│   └── utils/
-│       └── file.go       # File utility functions
+│   │   └── day.go       # Day interface and registry
+│   ├── utils/
+│   │   └── file.go       # File utility functions
+│   └── year2025/
+│       ├── day/
+│       │   └── day01.go  # Example generated implementation for the year
+│       └── utils/        # Year-specific helpers (optional)
 ├── Makefile             # Build and install targets
 └── README.md
 ```

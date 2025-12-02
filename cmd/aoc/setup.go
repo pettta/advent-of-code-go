@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	setupDay int
+	setupDay  int
 	setupYear int
 )
 
@@ -19,33 +19,40 @@ var SetupCmd = &cobra.Command{
 	Short: "Setup a new day",
 	Long:  `Setup creates a template file for a new day's implementation`,
 	Run: func(cmd *cobra.Command, args []string) {
-		
-		
-		// Validate day inputs (not bothering with year) 
+
+		// Validate day inputs (not bothering with year)
 		if setupDay < 1 || setupDay > 25 {
 			fmt.Fprintf(os.Stderr, "Day must be between 1 and 25, got %d\n", setupDay)
 			os.Exit(1)
 		}
-		yearFolderName := fmt.Sprintf("year%d", setupYear)
+		if setupYear < 1 {
+			fmt.Fprintf(os.Stderr, "Year must be a positive integer, got %d\n", setupYear)
+			os.Exit(1)
+		}
+		yearFolderName := fmt.Sprintf("%d", setupYear)
 		dayFileName := fmt.Sprintf("day%02d.go", setupDay)
 		dayFilePath := filepath.Join("internal", yearFolderName, "day", dayFileName)
 		if _, err := os.Stat(dayFilePath); err == nil {
 			fmt.Fprintf(os.Stderr, "Day %d already exists at %s\n", setupDay, dayFilePath)
 			os.Exit(1)
 		}
+		if err := os.MkdirAll(filepath.Dir(dayFilePath), 0o755); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create directories: %v\n", err)
+			os.Exit(1)
+		}
 
-		
 		// Create the template
 		tmpl := `package day
 
 import (
 	"fmt"
+	daypkg "advent-of-code-go/internal/day"
 )
 
 type Day{{.DayNum}} struct{}
 
 func init() {
-	Days.RegisterDay({{.DayNum}}, &Day{{.DayNum}}{})
+	daypkg.Days.RegisterDay({{.DayNum}}, &Day{{.DayNum}}{})
 }
 
 func (d *Day{{.DayNum}}) SolvePart1(input []byte) (string, error) {
@@ -59,7 +66,7 @@ func (d *Day{{.DayNum}}) SolvePart2(input []byte) (string, error) {
 }
 `
 
-		// Verify template and file creation works 
+		// Verify template and file creation works
 		t, err := template.New("day").Parse(tmpl)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error parsing template: %v\n", err)
@@ -80,7 +87,6 @@ func (d *Day{{.DayNum}}) SolvePart2(input []byte) (string, error) {
 			fmt.Fprintf(os.Stderr, "Error executing template: %v\n", err)
 			os.Exit(1)
 		}
-		
 
 		fmt.Printf("Created day %d template at %s\n", setupDay, dayFilePath)
 	},
