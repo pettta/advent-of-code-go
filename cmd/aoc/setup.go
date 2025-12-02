@@ -20,7 +20,7 @@ var SetupCmd = &cobra.Command{
 	Long:  `Setup creates a template file for a new day's implementation`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// Validate day & year inputs 
+		// Validate day & year inputs
 		if setupDay < 1 || setupDay > 25 {
 			fmt.Fprintf(os.Stderr, "Day must be between 1 and 25, got %d\n", setupDay)
 			os.Exit(1)
@@ -52,7 +52,7 @@ import (
 type Day{{.DayNum}} struct{}
 
 func init() {
-	daypkg.Days.RegisterDay({{.DayNum}}, &Day{{.DayNum}}{})
+	daypkg.Days.RegisterDay({{.Year}}, {{.DayNum}}, &Day{{.DayNum}}{})
 }
 
 func (d *Day{{.DayNum}}) SolvePart1(input []byte) (string, error) {
@@ -79,8 +79,10 @@ func (d *Day{{.DayNum}}) SolvePart2(input []byte) (string, error) {
 		}
 		defer file.Close()
 		data := struct {
+			Year   int
 			DayNum int
 		}{
+			Year:   setupYear,
 			DayNum: setupDay,
 		}
 		if err := t.Execute(file, data); err != nil {

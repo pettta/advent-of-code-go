@@ -1,25 +1,30 @@
 package day
 
-var YearDays YearDayMap
-
 type Day interface {
 	SolvePart1(input []byte) (string, error)
 	SolvePart2(input []byte) (string, error)
 }
 
-func init() {
-	YearDays = make(YearDayMap)
-}
+type YearDayMap map[int]map[int]Day
+var Days = make(YearDayMap)
 
-type YearDayMap map[int]map[int]Day // year -> day -> Day implementation
 
-func (d YearDayMap) RegisterDay(year int, dayNum int, day Day) {
+func (d YearDayMap) RegisterDay(year, day int, impl Day) {
+	if year < 1 || day < 1 || impl == nil {
+		return
+	}
 	if d[year] == nil {
 		d[year] = make(map[int]Day)
 	}
-	d[year][dayNum] = day
+	d[year][day] = impl
 }
 
-func (d YearDayMap) GetDay(year int, day int) Day {
-	return d[year][day]
+func (d YearDayMap) GetDay(year, day int) Day {
+	if year < 1 || day < 1 {
+		return nil
+	}
+	if yearMap := d[year]; yearMap != nil {
+		return yearMap[day]
+	}
+	return nil
 }

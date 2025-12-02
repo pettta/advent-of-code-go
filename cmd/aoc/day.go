@@ -13,7 +13,7 @@ import (
 var (
 	day  int
 	part int
-	year int 
+	year int
 	file string
 )
 
@@ -23,13 +23,16 @@ var DayCmd = &cobra.Command{
 	Long:  `Day to solve`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Validate day/part inputs, read input file
+		if year < 1 {
+			log.Fatalf("Year must be a positive integer, got %d", year)
+		}
 		if day < 1 || day > 25 {
 			log.Fatalf("Day must be between 1 and 25, got %d", day)
 		}
 		if part < 1 || part > 2 {
 			log.Fatalf("Part must be 1 or 2, got %d", part)
 		}
-		dayImpl := daypkg.Days.GetDay(day)
+		dayImpl := daypkg.Days.GetDay(year, day)
 		if dayImpl == nil {
 			log.Fatalf("Day %d is not implemented yet", day)
 		}
