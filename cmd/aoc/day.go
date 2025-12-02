@@ -1,8 +1,8 @@
 package aoc
 
 import (
-	daypkg "advent-of-code-2025/internal/day"
-	"advent-of-code-2025/internal/utils"
+	daypkg "advent-of-code-go/internal/day"
+	"advent-of-code-go/internal/utils"
 	"fmt"
 	"log"
 	"time"
