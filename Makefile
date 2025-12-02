@@ -1,8 +1,12 @@
-.PHONY: all build install clean
+.PHONY: all build install clean generate
 
 all: build install
 
-build:
+generate:
+	@echo "Generating year registry..."
+	@go run ./cmd/genyears
+
+build: generate
 	@echo "Building aoc..."
 	@go build -o aoc ./cmd
 	@chmod +x aoc

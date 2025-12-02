@@ -1,17 +1,14 @@
 package aoc
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
-	"sort"
-	"strconv"
-	"strings"
 	"text/template"
+
+	yearsgen "advent-of-code-go/internal/yearsgen"
 
 	"github.com/spf13/cobra"
 )
@@ -104,7 +101,7 @@ func (d *Day{{.DayNum}}) SolvePart2(input []byte) (string, error) {
 
 		fmt.Printf("Created year %d day %d template at %s\n", setupYear, setupDay, dayFilePath)
 
-		if err := ensureYearRegistered(setupYear); err != nil {
+		if err := yearsgen.Generate("."); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to update year registry: %v\n", err)
 			os.Exit(1)
 		}
@@ -151,53 +148,4 @@ func init() {
 	SetupCmd.MarkFlagRequired("year")
 }
 
-func ensureYearRegistered(year int) error {
-	if year < 1 {
-		return fmt.Errorf("invalid year %d", year)
-	}
-	aggregatorPath := filepath.Join("internal", "years", "years.go")
-	if err := os.MkdirAll(filepath.Dir(aggregatorPath), 0o755); err != nil {
-		return err
-	}
-
-	contents, err := os.ReadFile(aggregatorPath)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
-
-	yearSet := make(map[int]struct{})
-	if len(contents) > 0 {
-		re := regexp.MustCompile(`internal/(\d+)/day`)
-		matches := re.FindAllStringSubmatch(string(contents), -1)
-		for _, match := range matches {
-			y, convErr := strconv.Atoi(match[1])
-			if convErr == nil {
-				yearSet[y] = struct{}{}
-			}
-		}
-	}
-	yearSet[year] = struct{}{}
-
-	var years []int
-	for y := range yearSet {
-		years = append(years, y)
-	}
-	sort.Ints(years)
-
-	var importLines []string
-	for _, y := range years {
-		importLines = append(importLines, fmt.Sprintf("\t_ \"advent-of-code-go/internal/%d/day\"", y))
-	}
-	if len(importLines) == 0 {
-		importLines = append(importLines, "\t// no registered years yet")
-	}
-
-	content := fmt.Sprintf(`package years
-
-import (
-%s
-)
-`, strings.Join(importLines, "\n"))
-
-	return os.WriteFile(aggregatorPath, []byte(content), 0o644)
-}
+// aggregator file generation handled by yearsgen
