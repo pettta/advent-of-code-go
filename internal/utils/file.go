@@ -16,3 +16,7 @@ func ReadFileLines(path string) ([]string, error) {
 	}
 	return strings.Split(string(lines), "\n"), nil
 }
+
+func ReadLines(data []byte) []string {
+	return strings.Split(string(data), "\n")
+}

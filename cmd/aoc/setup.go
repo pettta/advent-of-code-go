@@ -56,6 +56,7 @@ var SetupCmd = &cobra.Command{
 import (
 	"fmt"
 	daypkg "advent-of-code-go/internal/day"
+	utils "advent-of-code-go/internal/utils"
 )
 
 type Day{{.DayNum}} struct{}
