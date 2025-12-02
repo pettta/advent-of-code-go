@@ -4,6 +4,11 @@ A Go-based CLI tool for solving Advent of Code 2025 problems. This tool provides
 
 ## Installation
 
+### (optional) Grab session cookie from advent of code website
+- Log into advent of code at https://adventofcode.com/ 
+- Hit `F12`, go to Application -> Cookies -> session 
+- Store the value there as a env variable `export AOC=<value>`
+
 ### Build from source
 
 ```bash

@@ -1,9 +1,16 @@
 package aoc
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"sort"
+	"strconv"
+	"strings"
 	"text/template"
 
 	"github.com/spf13/cobra"
@@ -20,7 +27,7 @@ var SetupCmd = &cobra.Command{
 	Long:  `Setup creates a template file for a new day's implementation`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		// Validate day & year inputs
+		// Validate day & year inputs for folder creation etc .
 		if setupDay < 1 || setupDay > 25 {
 			fmt.Fprintf(os.Stderr, "Day must be between 1 and 25, got %d\n", setupDay)
 			os.Exit(1)
@@ -32,12 +39,17 @@ var SetupCmd = &cobra.Command{
 		yearFolderName := fmt.Sprintf("%d", setupYear)
 		dayFileName := fmt.Sprintf("day%02d.go", setupDay)
 		dayFilePath := filepath.Join("internal", yearFolderName, "day", dayFileName)
+		inputFilePath := filepath.Join("inputs", yearFolderName, fmt.Sprintf("day%02d.txt", setupDay))
 		if _, err := os.Stat(dayFilePath); err == nil {
 			fmt.Fprintf(os.Stderr, "Day %d already exists at %s\n", setupDay, dayFilePath)
 			os.Exit(1)
 		}
 		if err := os.MkdirAll(filepath.Dir(dayFilePath), 0o755); err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to create directories: %v\n", err)
+			os.Exit(1)
+		}
+		if err := os.MkdirAll(filepath.Dir(inputFilePath), 0o755); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create input directories: %v\n", err)
 			os.Exit(1)
 		}
 
@@ -90,7 +102,45 @@ func (d *Day{{.DayNum}}) SolvePart2(input []byte) (string, error) {
 			os.Exit(1)
 		}
 
-		fmt.Printf("Created day %d template at %s\n", setupDay, dayFilePath)
+		fmt.Printf("Created year %d day %d template at %s\n", setupYear, setupDay, dayFilePath)
+
+		if err := ensureYearRegistered(setupYear); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to update year registry: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Curl the input file from Advent of Code's website
+		url := fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", setupYear, setupDay)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating request: %v\n", err)
+			os.Exit(1)
+		}
+		session := os.Getenv("AOC")
+		if session != "" {
+			req.AddCookie(&http.Cookie{Name: "session", Value: session})
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating input file: %v\n", err)
+			os.Exit(1)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			fmt.Fprintf(os.Stderr, "Failed to retrieve input file: %s\n Go grab it manually", resp.Status)
+			os.Exit(1)
+		}
+		inputFile, err := os.Create(inputFilePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating input file: %v\n", err)
+			os.Exit(1)
+		}
+		defer inputFile.Close()
+		if _, err := io.Copy(inputFile, resp.Body); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing input file: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Content from %s written to %s\n", url, inputFilePath)
 	},
 }
 
@@ -99,4 +149,55 @@ func init() {
 	SetupCmd.Flags().IntVarP(&setupYear, "year", "y", 0, "Year number to setup")
 	SetupCmd.MarkFlagRequired("day")
 	SetupCmd.MarkFlagRequired("year")
+}
+
+func ensureYearRegistered(year int) error {
+	if year < 1 {
+		return fmt.Errorf("invalid year %d", year)
+	}
+	aggregatorPath := filepath.Join("internal", "years", "years.go")
+	if err := os.MkdirAll(filepath.Dir(aggregatorPath), 0o755); err != nil {
+		return err
+	}
+
+	contents, err := os.ReadFile(aggregatorPath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
+	yearSet := make(map[int]struct{})
+	if len(contents) > 0 {
+		re := regexp.MustCompile(`internal/(\d+)/day`)
+		matches := re.FindAllStringSubmatch(string(contents), -1)
+		for _, match := range matches {
+			y, convErr := strconv.Atoi(match[1])
+			if convErr == nil {
+				yearSet[y] = struct{}{}
+			}
+		}
+	}
+	yearSet[year] = struct{}{}
+
+	var years []int
+	for y := range yearSet {
+		years = append(years, y)
+	}
+	sort.Ints(years)
+
+	var importLines []string
+	for _, y := range years {
+		importLines = append(importLines, fmt.Sprintf("\t_ \"advent-of-code-go/internal/%d/day\"", y))
+	}
+	if len(importLines) == 0 {
+		importLines = append(importLines, "\t// no registered years yet")
+	}
+
+	content := fmt.Sprintf(`package years
+
+import (
+%s
+)
+`, strings.Join(importLines, "\n"))
+
+	return os.WriteFile(aggregatorPath, []byte(content), 0o644)
 }

@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	
+
 	"advent-of-code-go/cmd/aoc"
+	_ "advent-of-code-go/internal/years"
 	"github.com/spf13/cobra"
 )
 
