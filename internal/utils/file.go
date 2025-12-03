@@ -20,3 +20,7 @@ func ReadFileLines(path string) ([]string, error) {
 func ReadLines(data []byte) []string {
 	return strings.Split(string(data), "\n")
 }
+
+func ReadCSV(data []byte) []string {
+	return strings.Split(string(data), ",")
+}
