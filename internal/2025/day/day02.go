@@ -15,8 +15,8 @@ func init() {
 	daypkg.Days.RegisterDay(2025, 2, &Day2{})
 }
 
-// was curious if no sling slicing would be any faster, basically same speed as string based approach and i would probably not do it this way in the real world 
-// at least my approach wasnt, but i wont claim to be mr golang (also i was lazy and used math's funcs which require casting in and out of floats constantly) 
+// was curious if not using a string-based approach would be any faster
+// at least my approach wasnt but im dumb and i wont claim to be mr golang lol
 
 // func (d *Day2) SolvePart1(input []byte) (string, error) {
 // 	soln := 0 
@@ -64,7 +64,6 @@ func (d *Day2) SolvePart1(input []byte) (string, error) {
 		end, _ := strconv.Atoi(endPoints[1])
 		
 		for val := range end-start+1 {
-			// string approach: (~116ms) 
 			strVal := fmt.Sprintf("%d", start+val)
 			len := len(strVal) 
 			if (len%2==0) && (strVal[0:len/2] == strVal[len/2:len]) {
@@ -77,7 +76,6 @@ func (d *Day2) SolvePart1(input []byte) (string, error) {
 }
 
 func (d *Day2) SolvePart2(input []byte) (string, error) {
-	// TODO: Implement part 2
 	soln := 0 
 	for _, line := range utils.ReadCSV(input) {
 		if line == "" {
