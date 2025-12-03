@@ -15,8 +15,8 @@ func init() {
 	daypkg.Days.RegisterDay(2025, 2, &Day2{})
 }
 
-// was curious if not using a string-based approach would be any faster
-// at least my approach wasnt but im dumb and i wont claim to be mr golang lol
+// was curious if not using a string-based approach would be loads faster even just whipping it up quickly (lots of float/int casts, doing multiple calls, etc)
+// at least my approach wasnt (was about the same exact speed) but im dumb and i wont claim to be mr golang lol
 
 // func (d *Day2) SolvePart1(input []byte) (string, error) {
 // 	soln := 0 
