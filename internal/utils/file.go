@@ -24,3 +24,13 @@ func ReadLines(data []byte) []string {
 func ReadCSV(data []byte) []string {
 	return strings.Split(string(data), ",")
 }
+
+func B2I(b bool) int {
+	var i int
+	if b {
+		i = 1
+	} else {
+		i = 0
+	}
+	return i
+}
